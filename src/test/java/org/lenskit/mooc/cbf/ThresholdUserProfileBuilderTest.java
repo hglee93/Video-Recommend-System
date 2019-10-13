@@ -7,8 +7,6 @@ import org.lenskit.data.history.History;
 import org.lenskit.data.history.UserHistory;
 import org.lenskit.data.ratings.Rating;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.closeTo;

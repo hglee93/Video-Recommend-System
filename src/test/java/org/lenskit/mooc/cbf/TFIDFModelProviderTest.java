@@ -25,7 +25,7 @@ public class TFIDFModelProviderTest {
     private TFIDFModel model;
 
     static TFIDFModel createModel() {
-        StaticDataSource data = new StaticDataSource("test");
+        /*StaticDataSource data = new StaticDataSource("test");
         List<Entity> tags = new ArrayList<>();
         tags.add(Entities.newBuilder(TagData.ITEM_TAG_TYPE)
                          .setId(1)
@@ -46,17 +46,17 @@ public class TFIDFModelProviderTest {
                          .setId(4)
                          .setAttribute(TagData.ITEM_ID, 3L)
                          .setAttribute(TagData.TAG, "jubjub bird")
-                         .build());
+                         .build());*/
 
-        /*StaticDataSource data;
+        StaticDataSource data;
         try {
             data = StaticDataSource.load(Paths.get("data/movielens.yml"));
         } catch (IOException e) {
             throw new RuntimeException("could not load configuration", e);
-        }*/
+        }
 
-        data.addSource(tags);
-        data.addDerivedEntity(CommonTypes.ITEM, TagData.ITEM_TAG_TYPE, TagData.ITEM_ID);
+        //data.addSource(tags);
+        //data.addDerivedEntity(CommonTypes.ITEM, TagData.ITEM_TAG_TYPE, TagData.ITEM_ID);
 
         TFIDFModelProvider mb = new TFIDFModelProvider(data.get());
         return mb.get();

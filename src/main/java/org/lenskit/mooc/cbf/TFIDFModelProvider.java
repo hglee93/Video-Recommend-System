@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Builder for computing {@linkplain TFIDFModel TF-IDF models} from item tag data.  Each item is
@@ -65,17 +66,18 @@ public class TFIDFModelProvider implements Provider<TFIDFModel> {
                 String tag = tagApplication.get(TagData.TAG);
                 // TODO Count this tag application in the term frequency vector
                 if (work.containsKey(tag) == true) {
-                    Double value = work.get(tag);
-                    work.put(tag, value + 1.0);
+                    work.put(tag, work.get(tag) + 1.0);
                 } else {
                     work.put(tag, 1.0);
                 }
-                // TODO Also count it in the document frequencey vector when needed
-                if (docFreq.containsKey(tag) == true) {
-                    Double value = work.get(tag);
-                    docFreq.put(tag, value + 1.0);
-                } else {
-                    docFreq.put(tag, 1.0);
+
+                // TODO Also count it in the document frequency vector when needed
+                if(work.get(tag) == 1.0) {
+                    if (docFreq.containsKey(tag) == true) {
+                        docFreq.put(tag, docFreq.get(tag) + 1.0);
+                    } else {
+                        docFreq.put(tag, 1.0);
+                    }
                 }
             }
 
@@ -92,7 +94,7 @@ public class TFIDFModelProvider implements Provider<TFIDFModel> {
             e.setValue(logN - Math.log(e.getValue()));
         }
 
-        // Now docFreq is a log-IDF vector.  Its values can therefore be multiplied by TF values.
+        // Now docFreq is a log-IDF vector. Its values can therefore be multiplied by TF values.
         // So we can use it to apply IDF to each item vector to put it in the final model.
         // Create a map to store the final model data.
         Map<Long, Map<String, Double>> modelData = new HashMap<>();
