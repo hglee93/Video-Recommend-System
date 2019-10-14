@@ -77,8 +77,6 @@ public class TFIDFItemScorer extends AbstractItemScorer {
             // If the denominator of the cosine similarity is 0, skip the item
 
             Double mulUserItem = 0.0;
-            Double squareUser = 0.0;
-            Double squareItem = 0.0;
 
             for (Map.Entry<String, Double> e : iv.entrySet()) {
 
@@ -88,19 +86,30 @@ public class TFIDFItemScorer extends AbstractItemScorer {
 
                 Double userPreference = userVector.get(e.getKey());
                 mulUserItem += (e.getValue() * userPreference);
-                squareUser += (userPreference * userPreference);
+            }
+
+            Double squareUser = 0.0;
+            for(Map.Entry<String, Double> e : userVector.entrySet()) {
+                squareUser += (e.getValue() * e.getValue());
+            }
+            squareUser = Math.sqrt(squareUser);
+
+            Double squareItem = 0.0;
+            for(Map.Entry<String, Double> e : iv.entrySet()) {
                 squareItem += (e.getValue() * e.getValue());
             }
+            squareItem = Math.sqrt(squareItem);
 
             if(squareUser.equals(0.0) || squareItem.equals(0.0)) {
                 continue;
             }
 
-            Double cs = mulUserItem / (Math.sqrt(squareItem) * Math.sqrt(squareUser));
+            Double cs = mulUserItem / (squareItem * squareUser);
 
             if(item.equals(32L)) {
                 System.out.println(item + " : " + cs);
             }
+
             results.add(new BasicResult(item, cs));
             //throw new UnsupportedOperationException("stub implementation");
         }

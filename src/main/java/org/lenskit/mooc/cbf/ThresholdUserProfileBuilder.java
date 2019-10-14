@@ -39,8 +39,7 @@ public class ThresholdUserProfileBuilder implements UserProfileBuilder {
                 Map<String, Double> itemVector = model.getItemVector(r.getItemId());
                 for(Map.Entry<String, Double> item : itemVector.entrySet()) {
                     if(profile.containsKey(item.getKey()) == true) {
-                        Double value = profile.get(item.getKey());
-                        profile.put(item.getKey(), value + item.getValue());
+                        profile.put(item.getKey(), profile.get(item.getKey()) + item.getValue());
                     } else {
                         profile.put(item.getKey(), item.getValue());
                     }
