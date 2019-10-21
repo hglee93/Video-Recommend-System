@@ -1,0 +1,23 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.9.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+}
+
+ext.lenskitVersion = '3.0-M1'
+
+group = 'com.skku'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    compile group: 'org.lenskit', name: 'lenskit-gradle', version: '3.0-M1'
+    compile "org.lenskit:lenskit-all:$lenskitVersion"
+    runtime "org.lenskit:lenskit-cli:$lenskitVersion"
+}
