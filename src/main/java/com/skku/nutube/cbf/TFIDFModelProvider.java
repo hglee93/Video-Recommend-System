@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.nio.DoubleBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,18 +66,19 @@ public class TFIDFModelProvider implements Provider<TFIDFModel> {
                 String tag = tagApplication.get(TagData.TAG);
                 // TODO Count this tag application in the term frequency vector
                 if (work.containsKey(tag) == true) {
-                    Double value = work.get(tag);
-                    work.put(tag, value + 1.0);
+                    work.put(tag, work.get(tag) + 1.0);
                 } else {
                     work.put(tag, 1.0);
                 }
                 // TODO Also count it in the document frequencey vector when needed
-                if (docFreq.containsKey(tag) == true) {
-                    Double value = work.get(tag);
-                    docFreq.put(tag, value + 1.0);
-                } else {
-                    docFreq.put(tag, 1.0);
+                if(work.get(tag) == 1.0) {
+                    if (docFreq.containsKey(tag) == true) {
+                        docFreq.put(tag, docFreq.get(tag) + 1.0);
+                    } else {
+                        docFreq.put(tag, 1.0);
+                    }
                 }
+
             }
 
             itemVectors.put(item, work);
@@ -117,6 +119,11 @@ public class TFIDFModelProvider implements Provider<TFIDFModel> {
                 e.setValue(e.getValue() / euclideanNorm);
             }
 
+            if(entry.getKey().equals(2231L)) {
+                for(Map.Entry<String, Double> e : tv.entrySet()) {
+                    System.out.println(e.getKey() + ", " + e.getValue());
+                }
+            }
             modelData.put(entry.getKey(), tv);
         }
 
