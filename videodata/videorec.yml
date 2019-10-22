@@ -1,0 +1,24 @@
+ratings:
+  type: textfile
+  file: ratings.csv
+  format: csv
+  entity_type: rating
+  header: true
+videos:
+  type: textfile
+  file: videos2000.csv
+  format: csv
+  entity_type: item
+  header: true
+  columns: [id, name]
+tags:
+  type: textfile
+  file: videotags2000.csv
+  format: csv
+  entity_type: item-tag
+  header: true
+  columns:
+  - name: item
+    type: long
+  - name: tag
+    type: string
