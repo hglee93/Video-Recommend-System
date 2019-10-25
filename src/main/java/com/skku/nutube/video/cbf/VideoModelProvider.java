@@ -1,75 +1,61 @@
 package com.skku.nutube.video.cbf;
 
+import com.skku.nutube.repository.VideoListRepository;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import org.lenskit.data.dao.DataAccessObject;
 import org.lenskit.data.entities.CommonTypes;
 import org.lenskit.data.entities.Entity;
+import org.lenskit.data.entities.TypedName;
 import org.lenskit.inject.Transient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-/**
- * Builder for computing {@linkplain VideoModel TF-IDF models} from item tag data.  Each item is
- * represented by a normalized TF-IDF vector.
- *
- * @author <a href="http://www.grouplens.org">GroupLens Research</a>
- */
 public class VideoModelProvider implements Provider<VideoModel> {
     private static final Logger logger = LoggerFactory.getLogger(VideoModelProvider.class);
 
-    private final DataAccessObject dao;
+    //private final DataAccessObject dao;
 
-    /**
-     * Construct a model builder.  The {@link Inject} annotation on this constructor tells LensKit
-     * that it can be used to build the model builder.
-     *
-     * @param dao The data access object.
-     */
-    @Inject
-    public VideoModelProvider(@Transient DataAccessObject dao) {
-        this.dao = dao;
+
+    private VideoListRepository videoListRepository;
+
+    //@Inject
+    //public VideoModelProvider(@Transient DataAccessObject dao) {
+        //this.dao = dao;
+    //}
+
+    public VideoModelProvider(){
+        videoListRepository = new VideoListRepository();
     }
 
-    /**
-     * This method is where the model should actually be computed.
-     * @return The TF-IDF model (a model of item tag vectors).
-     */
     @Override
     public VideoModel get() {
         logger.info("Building Model");
 
-        // Create a map to accumulate document frequencies for the IDF computation
         Map<String, Double> docFreq = new HashMap<>();
-
-        // We now proceed in 2 stages. First, we build a TF vector for each item.
-        // While we do this, we also build the DF vector.
-        // We will then apply the IDF to each TF vector and normalize it to a unit vector.
-
-        // Create a map to store the item TF vectors.
         Map<Long, Map<String, Double>> itemVectors = new HashMap<>();
 
-        // Iterate over the items to compute each item's vector.
-        LongSet items = dao.getEntityIds(CommonTypes.ITEM);
-        for (long item : items) {
-            // Create a work vector to accumulate this item's tag vector.
-            Map<String, Double> work = new HashMap<>();
+        //LongSet items = dao.getEntityIds(CommonTypes.ITEM);
+        List<Long> items = videoListRepository.selectItemId();
 
-            for (Entity tagApplication : dao.query(VideoTagData.ITEM_TAG_TYPE)
-                                            .withAttribute(VideoTagData.ITEM_ID, item)
-                                            .get()) {
-                String tag = tagApplication.get(VideoTagData.TAG);
-                // TODO Count this tag application in the term frequency vector
+        for(Long item : items) {
+            Map<String, Double> work = new HashMap<>();
+            List<String> tagList = videoListRepository.selectTagListByItemId(item);
+
+            for(String tag : tagList) {
+                //System.out.println(tag);
+                tag = tag.replaceAll("\r", "");
                 if (work.containsKey(tag) == true) {
                     work.put(tag, work.get(tag) + 1.0);
                 } else {
                     work.put(tag, 1.0);
                 }
-                // TODO Also count it in the document frequencey vector when needed
                 if(work.get(tag) == 1.0) {
                     if (docFreq.containsKey(tag) == true) {
                         docFreq.put(tag, docFreq.get(tag) + 1.0);
@@ -77,56 +63,57 @@ public class VideoModelProvider implements Provider<VideoModel> {
                         docFreq.put(tag, 1.0);
                     }
                 }
-
             }
             itemVectors.put(item, work);
         }
+        /*for (long item : items) {
+            Map<String, Double> work = new HashMap<>();
+            for (Entity tagApplication : dao.query(VideoTagData.ITEM_TAG_TYPE)
+                                            .withAttribute(VideoTagData.ITEM_ID, item)
+                                            .get()) {
+                String tag = tagApplication.get(VideoTagData.TAG);
+
+                if (work.containsKey(tag) == true) {
+                    work.put(tag, work.get(tag) + 1.0);
+                } else {
+                    work.put(tag, 1.0);
+                }
+                if(work.get(tag) == 1.0) {
+                    if (docFreq.containsKey(tag) == true) {
+                        docFreq.put(tag, docFreq.get(tag) + 1.0);
+                    } else {
+                        docFreq.put(tag, 1.0);
+                    }
+                }
+            }
+
+            itemVectors.put(item, work);
+        }*/
 
         logger.info("Computed TF vectors for {} items", itemVectors.size());
 
-        // Now we've seen all the items, so we have each item's TF vector and a global vector
-        // of document frequencies.
-        // Invert and log the document frequency.  We can do this in-place.
         final double logN = Math.log(items.size());
         for (Map.Entry<String, Double> e : docFreq.entrySet()) {
             e.setValue(logN - Math.log(e.getValue()));
         }
 
-        // Now docFreq is a log-IDF vector.  Its values can therefore be multiplied by TF values.
-        // So we can use it to apply IDF to each item vector to put it in the final model.
-        // Create a map to store the final model data.
         Map<Long, Map<String, Double>> modelData = new HashMap<>();
         for (Map.Entry<Long, Map<String, Double>> entry : itemVectors.entrySet()) {
             Map<String, Double> tv = new HashMap<>(entry.getValue());
-            // TODO Convert this vector to a TF-IDF vector
             for(Map.Entry<String, Double> e : tv.entrySet()) {
                 e.setValue(e.getValue() * docFreq.get(e.getKey()));
             }
-            // TODO Normalize the TF-IDF vector to be a unit vector
-            // Normalize it by dividing each element by its Euclidean norm, which is the
-            // square root of the sum of the squares of the values.
             Double euclideanNorm = 0.0;
-
             for(Map.Entry<String, Double> e : tv.entrySet()) {
                 euclideanNorm += (e.getValue() * e.getValue());
             }
-
             euclideanNorm = Math.sqrt(euclideanNorm);
-
             for(Map.Entry<String, Double> e : tv.entrySet()) {
                 e.setValue(e.getValue() / euclideanNorm);
-            }
-
-            if(entry.getKey().equals(1L)) {
-                /*for(Map.Entry<String, Double> e : tv.entrySet()) {
-                    System.out.println(e.getKey() + ", " + e.getValue());
-                }*/
-                entry.toString();
             }
             modelData.put(entry.getKey(), tv);
         }
 
-        // We don't need the IDF vector anymore, as long as as we have no new tags
         return new VideoModel(modelData);
     }
 }
