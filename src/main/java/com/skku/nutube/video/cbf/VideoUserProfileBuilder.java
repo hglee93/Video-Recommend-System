@@ -32,10 +32,9 @@ public class VideoUserProfileBuilder implements UserProfileBuilder {
         // Create a new vector over tags to accumulate the user profile
         Map<String,Double> profile = new HashMap<>();
 
-        // Iterate over the user's ratings to build their profile
         for (Rating r: ratings) {
             if (r.getValue() >= 1) {
-                // TODO Get this item's vector and add it to the user's profile
+
                 Map<String, Double> itemVector = model.getItemVector(r.getItemId());
                 for(Map.Entry<String, Double> item : itemVector.entrySet()) {
                     if(profile.containsKey(item.getKey()) == true) {
@@ -51,7 +50,7 @@ public class VideoUserProfileBuilder implements UserProfileBuilder {
         for(Map.Entry<String, Double> entry : profile.entrySet()) {
             System.out.println(entry.getKey() + " : " + entry.getValue());
         }
-        // The profile is accumulated, return it.
+
         return profile;
     }
 }
