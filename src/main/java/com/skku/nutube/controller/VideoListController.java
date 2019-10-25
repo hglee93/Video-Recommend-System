@@ -2,6 +2,11 @@ package com.skku.nutube.controller;
 
 import com.google.common.base.Throwables;
 import com.skku.nutube.dto.VideoDto;
+import com.skku.nutube.dto.VideoScoreDto;
+import com.skku.nutube.repository.VideoListRepository;
+import com.skku.nutube.video.custom.cbf.UserProfileLearner;
+import com.skku.nutube.video.custom.cbf.VideoContentAnalyzer;
+import com.skku.nutube.video.custom.cbf.VideoScorer;
 import org.lenskit.LenskitConfiguration;
 import org.lenskit.LenskitRecommender;
 import org.lenskit.LenskitRecommenderEngine;
@@ -16,6 +21,7 @@ import org.lenskit.data.entities.CommonTypes;
 import org.lenskit.data.entities.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @RestController
 public class VideoListController {
@@ -33,6 +38,18 @@ public class VideoListController {
     private Path videoDataFile = Paths.get("videodata/videorec.yml");
 
     Logger logger = LoggerFactory.getLogger(VideoListController.class);
+
+    @Autowired
+    VideoListRepository videoListRepository;
+
+    @Autowired
+    VideoContentAnalyzer videoContentAnalyzer;
+
+    @Autowired
+    UserProfileLearner userProfileLearner;
+
+    @Autowired
+    VideoScorer videoScorer;
 
     @RequestMapping(value = "/video/list", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
@@ -63,13 +80,8 @@ public class VideoListController {
             logger.info("obtained recommender from engine");
             // we want to recommend items
             ItemRecommender irec = rec.getItemRecommender();
-            assert irec != null; // not null because we configured one
-            //ResultList recommendations = irec.recommend(42, 10);
-            //List<Long> recommendations = irec.recommend(320, 10);
+            assert irec != null;
 
-            /*for(Long itemId : recommendations) {
-                System.out.println(itemId);
-            }*/
             // for users
             ResultList recommendations = irec.recommendWithDetails(Integer.parseInt(userId), 10, null, null);
             System.out.format("Recommendations for user %d:\n", Integer.parseInt(userId));
@@ -145,5 +157,21 @@ public class VideoListController {
 
 
         return resultList;
+    }
+
+    @RequestMapping(value = "/test2/list", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<VideoScoreDto> getTest2List(@RequestParam(value = "userId", defaultValue = "0")String userId) throws IOException {
+
+        List<VideoDto> resultList = null;
+        videoContentAnalyzer.buildItemVectors();
+
+        Map<Integer, Map<String, Double>> itemVectors = videoContentAnalyzer.getItemVectors();
+        Map<String, Double> profile = userProfileLearner.makeUserProfile(Integer.valueOf(userId), itemVectors);
+
+        List<VideoScoreDto> videoScoreDtoList = videoScorer.scoreWithDetails(profile, itemVectors);
+        Collections.sort(videoScoreDtoList);
+
+        return videoScoreDtoList.subList(0, 10);
     }
 }
