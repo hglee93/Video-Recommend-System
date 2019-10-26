@@ -53,7 +53,23 @@ public class VideoListController {
 
     @RequestMapping(value = "/video/list", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public List<VideoDto> getVideoList(@RequestParam(value = "userId", defaultValue = "0")String userId) throws IOException {
+    public List<VideoScoreDto> getVideoList(@RequestParam(value = "userId", defaultValue = "0")String userId) throws IOException {
+
+        List<VideoDto> resultList = null;
+        videoContentAnalyzer.buildItemVectors();
+
+        Map<Integer, Map<String, Double>> itemVectors = videoContentAnalyzer.getItemVectors();
+        Map<String, Double> profile = userProfileLearner.makeUserProfile(Integer.valueOf(userId), itemVectors);
+
+        List<VideoScoreDto> videoScoreDtoList = videoScorer.scoreWithDetails(profile, itemVectors);
+        Collections.sort(videoScoreDtoList);
+
+        return videoScoreDtoList.subList(0, 10);
+    }
+
+    @RequestMapping(value = "/test2/list", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<VideoDto> getTest2List(@RequestParam(value = "userId", defaultValue = "0")String userId) throws IOException {
 
         LenskitConfiguration config = null;
         List<VideoDto> resultList = null;
@@ -159,19 +175,4 @@ public class VideoListController {
         return resultList;
     }
 
-    @RequestMapping(value = "/test2/list", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public List<VideoScoreDto> getTest2List(@RequestParam(value = "userId", defaultValue = "0")String userId) throws IOException {
-
-        List<VideoDto> resultList = null;
-        videoContentAnalyzer.buildItemVectors();
-
-        Map<Integer, Map<String, Double>> itemVectors = videoContentAnalyzer.getItemVectors();
-        Map<String, Double> profile = userProfileLearner.makeUserProfile(Integer.valueOf(userId), itemVectors);
-
-        List<VideoScoreDto> videoScoreDtoList = videoScorer.scoreWithDetails(profile, itemVectors);
-        Collections.sort(videoScoreDtoList);
-
-        return videoScoreDtoList.subList(0, 10);
-    }
 }
