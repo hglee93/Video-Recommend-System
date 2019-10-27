@@ -1,5 +1,7 @@
 package com.skku.nutube.repository;
 
+import com.skku.nutube.dto.VideoDto;
+import com.skku.nutube.dto.VideoLikeDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -23,6 +25,24 @@ public class VideoRepository {
                 new Integer(
                         rs.getInt("id")
                 ));
+    }
+
+    public String selectTitleByItemId(Integer videoId) {
+        return jdbcTemplate.queryForObject("select title from videos where id = ?", new Object[]{videoId}, String.class);
+    }
+
+    public List<VideoDto> selectVideo() {
+        return jdbcTemplate.query("select * from videos", new VideoDtoMapper());
+    }
+
+    public class VideoDtoMapper implements RowMapper<VideoDto> {
+        // interface method
+        public VideoDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+            VideoDto videoDto = new VideoDto();
+            videoDto.setVideoId(rs.getInt("id"));
+            videoDto.setVideoName(rs.getString("title"));
+            return videoDto;
+        }
     }
 
     public List<String> selectTagListByItemId(Integer videoId) {
