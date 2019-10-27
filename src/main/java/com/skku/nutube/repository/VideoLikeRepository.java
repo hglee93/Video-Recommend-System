@@ -32,4 +32,9 @@ public class VideoLikeRepository {
             return videoLikeDto;
         }
     }
+
+    public int insertLike(Integer userId, Integer videoId) {
+        return jdbcTemplate.update(
+                "INSERT INTO likes VALUES (?, ?, 1)",userId, videoId);
+    }
 }
