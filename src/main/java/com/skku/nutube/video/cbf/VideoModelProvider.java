@@ -20,9 +20,6 @@ import java.util.Map;
 public class VideoModelProvider implements Provider<VideoModel> {
     private static final Logger logger = LoggerFactory.getLogger(VideoModelProvider.class);
 
-    //private final DataAccessObject dao;
-
-
     private VideoListRepository videoListRepository;
 
     //@Inject
