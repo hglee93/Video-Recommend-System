@@ -3,10 +3,9 @@ package com.skku.nutube.controller;
 import com.google.common.base.Throwables;
 import com.skku.nutube.dto.VideoDto;
 import com.skku.nutube.dto.VideoScoreDto;
+import com.skku.nutube.repository.VideoLikeRepository;
 import com.skku.nutube.repository.VideoListRepository;
-import com.skku.nutube.video.custom.cbf.UserProfileLearner;
-import com.skku.nutube.video.custom.cbf.VideoContentAnalyzer;
-import com.skku.nutube.video.custom.cbf.VideoScorer;
+import com.skku.nutube.video.custom.cbf.ContentBasedFilter;
 import org.lenskit.LenskitConfiguration;
 import org.lenskit.LenskitRecommender;
 import org.lenskit.LenskitRecommenderEngine;
@@ -43,28 +42,23 @@ public class VideoListController {
     VideoListRepository videoListRepository;
 
     @Autowired
-    VideoContentAnalyzer videoContentAnalyzer;
+    VideoLikeRepository videoLikeRepository;
 
     @Autowired
-    UserProfileLearner userProfileLearner;
-
-    @Autowired
-    VideoScorer videoScorer;
+    ContentBasedFilter contentBasedFilter;
 
     @RequestMapping(value = "/video/list", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public List<VideoScoreDto> getVideoList(@RequestParam(value = "userId", defaultValue = "0")String userId) throws IOException {
+        List<VideoScoreDto> videoScoreDtoList = contentBasedFilter.recommend(Integer.valueOf(userId));
+        return videoScoreDtoList;
+    }
 
-        List<VideoDto> resultList = null;
-        videoContentAnalyzer.buildItemVectors();
-
-        Map<Integer, Map<String, Double>> itemVectors = videoContentAnalyzer.getItemVectors();
-        Map<String, Double> profile = userProfileLearner.makeUserProfile(Integer.valueOf(userId), itemVectors);
-
-        List<VideoScoreDto> videoScoreDtoList = videoScorer.scoreWithDetails(profile, itemVectors);
-        Collections.sort(videoScoreDtoList);
-
-        return videoScoreDtoList.subList(0, 10);
+    @RequestMapping(value = "/like", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public void putVideoLike(@RequestParam(value = "userId", defaultValue = "0")String userId,
+                             @RequestParam(value = "videoId", defaultValue = "0")String videoId) throws IOException {
+        videoLikeRepository.insertLike(Integer.valueOf(userId), Integer.valueOf(videoId));
     }
 
     @RequestMapping(value = "/test2/list", method = RequestMethod.GET)
@@ -111,7 +105,7 @@ public class VideoListController {
                     name = itemData.maybeGet(CommonAttributes.NAME);
                 }
                 //System.out.format("\t%d (%s): %.2f\n", item.getId(), name, item.getScore());
-                resultList.add(new VideoDto(item.getId(), name, item.getScore()));
+                //resultList.add(new VideoDto(item.getId(), name, item.getScore()));
             }
         }
 
@@ -167,7 +161,7 @@ public class VideoListController {
                     name = itemData.maybeGet(CommonAttributes.NAME);
                 }
                 //System.out.format("\t%d (%s): %.2f\n", item.getId(), name, item.getScore());
-                resultList.add(new VideoDto(item.getId(), name, item.getScore()));
+                //resultList.add(new VideoDto(item.getId(), name, item.getScore()));
             }
         }
 
