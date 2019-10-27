@@ -2,19 +2,19 @@ package com.skku.nutube.dto;
 
 public class VideoDto {
 
-    private Long videoId;
+    private Integer videoId;
 
     private String videoName;
 
-    private Double score;
-
-    public VideoDto(Long videoId, String videoName, Double score) {
-        this.videoId = videoId;
-        this.videoName = videoName;
-        this.score = score;
+    public VideoDto() {
     }
 
-    public Long getVideoId() {
+    public VideoDto(Integer videoId, String videoName) {
+        this.videoId = videoId;
+        this.videoName = videoName;
+    }
+
+    public Integer getVideoId() {
         return videoId;
     }
 
@@ -22,11 +22,7 @@ public class VideoDto {
         return videoName;
     }
 
-    public Double getScore() {
-        return score;
-    }
-
-    public void setVideoId(Long videoId) {
+    public void setVideoId(Integer videoId) {
         this.videoId = videoId;
     }
 
@@ -34,7 +30,4 @@ public class VideoDto {
         this.videoName = videoName;
     }
 
-    public void setScore(Double score) {
-        this.score = score;
-    }
 }
