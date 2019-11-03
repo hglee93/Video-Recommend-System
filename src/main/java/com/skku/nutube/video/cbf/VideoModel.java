@@ -21,7 +21,7 @@ import java.util.Map;
 public class VideoModel implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final Map<Long, Map<String, Double>> itemVectors;
+    private final Map<Integer, Map<String, Double>> itemVectors;
 
     /**
      * Constructor for the model.  This is package-private; the only way to build a model is with
@@ -29,9 +29,9 @@ public class VideoModel implements Serializable {
      *
      * @param itemVectors A map of item IDs to tag vectors.
      */
-    VideoModel(Map<Long, Map<String, Double>> itemVectors) {
-        ImmutableMap.Builder<Long,Map<String,Double>> bld = ImmutableMap.builder();
-        for (Map.Entry<Long,Map<String,Double>> e: itemVectors.entrySet()) {
+    VideoModel(Map<Integer, Map<String, Double>> itemVectors) {
+        ImmutableMap.Builder<Integer,Map<String,Double>> bld = ImmutableMap.builder();
+        for (Map.Entry<Integer,Map<String,Double>> e: itemVectors.entrySet()) {
             bld.put(e.getKey(), ImmutableMap.copyOf(e.getValue()));
         }
         this.itemVectors = bld.build();

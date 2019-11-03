@@ -9,9 +9,7 @@ import org.lenskit.data.entities.TypedName;
 import org.lenskit.inject.Transient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.HashMap;
 import java.util.List;
@@ -36,12 +34,12 @@ public class VideoModelProvider implements Provider<VideoModel> {
         logger.info("Building Model");
 
         Map<String, Double> docFreq = new HashMap<>();
-        Map<Long, Map<String, Double>> itemVectors = new HashMap<>();
+        Map<Integer, Map<String, Double>> itemVectors = new HashMap<>();
 
         //LongSet items = dao.getEntityIds(CommonTypes.ITEM);
-        List<Long> items = videoListRepository.selectItemId();
+        List<Integer> items = videoListRepository.selectItemId();
 
-        for(Long item : items) {
+        for(Integer item : items) {
             Map<String, Double> work = new HashMap<>();
             List<String> tagList = videoListRepository.selectTagListByItemId(item);
 
@@ -94,8 +92,8 @@ public class VideoModelProvider implements Provider<VideoModel> {
             e.setValue(logN - Math.log(e.getValue()));
         }
 
-        Map<Long, Map<String, Double>> modelData = new HashMap<>();
-        for (Map.Entry<Long, Map<String, Double>> entry : itemVectors.entrySet()) {
+        Map<Integer, Map<String, Double>> modelData = new HashMap<>();
+        for (Map.Entry<Integer, Map<String, Double>> entry : itemVectors.entrySet()) {
             Map<String, Double> tv = new HashMap<>(entry.getValue());
             for(Map.Entry<String, Double> e : tv.entrySet()) {
                 e.setValue(e.getValue() * docFreq.get(e.getKey()));
