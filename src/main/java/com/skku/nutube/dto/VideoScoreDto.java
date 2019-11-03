@@ -1,9 +1,14 @@
 package com.skku.nutube.dto;
 
+import lombok.ToString;
+
+@ToString
 public class VideoScoreDto implements Comparable<VideoScoreDto> {
     private Integer videoId;
     private String videoTitle;
     private Double similarity;
+
+    public VideoScoreDto() {}
 
     public VideoScoreDto(Integer videoId, String videoTitle, Double similarity) {
         this.videoId = videoId;
@@ -24,7 +29,7 @@ public class VideoScoreDto implements Comparable<VideoScoreDto> {
         return score.similarity.compareTo(this.similarity);
     }
 
-    public int getVideoId() {
+    public Integer getVideoId() {
         return videoId;
     }
 
@@ -42,10 +47,11 @@ public class VideoScoreDto implements Comparable<VideoScoreDto> {
 
     @Override
     public String toString() {
-        return "VideoScoreDto{" +
-                "videoId=" + videoId +
-                ", videoTitle='" + videoTitle + '\'' +
-                ", similarity=" + similarity +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("VideoScoreDto{");
+        sb.append("videoId=" + this.videoId);
+        sb.append(", videoTitle=" + this.videoTitle);
+        sb.append(", similarity=" + this.similarity + "}");
+        return sb.toString();
     }
 }
