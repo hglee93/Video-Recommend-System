@@ -17,7 +17,7 @@ public class VideoLikeRepository {
 
     static final String SQL = "select * from likes where userId = ?";
 
-    public List<VideoLikeDto> selectLikes(int userId) {
+    public List<VideoLikeDto> selectLikesByUserId(int userId) {
         List<VideoLikeDto> videoLikeDtoList = jdbcTemplate.query(SQL, new Object[]{userId}, new VideoLikeDtoMapper());
         return videoLikeDtoList;
     }
