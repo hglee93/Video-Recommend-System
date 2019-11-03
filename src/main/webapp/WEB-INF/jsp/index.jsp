@@ -20,13 +20,18 @@
                 html += "<tr>";
                 for(var j = i * 5 ; j < (i * 5) + 5 ; j++){
                     var jsonobj = JSON.parse(JSON.stringify(obj[j]));
-                    html += "<td><a href=/content?videoId=" + jsonobj.videoId + "><img src=img/video.png width=150 height=150></a></td>";
+                    html += "<td width='100'><a href=/content?videoId=" + jsonobj.videoId + "><img src=img/video.png width=150 height=150></a></td>";
                 }
                 html += "</tr>";
                 html += "<tr>";
                 for(var j = i * 5 ; j < (i * 5) + 5 ; j++){
                     var jsonobj = JSON.parse(JSON.stringify(obj[j]));
-                    html += "<td>" + jsonobj.videoTitle + jsonobj.videoTitle.length+ "</td>";
+                    var title = jsonobj.videoTitle;
+                    if(jsonobj.videoTitle.length > 30) {
+                        title = jsonobj.videoTitle.substring(0, 30);
+                        title += "...";
+                    }
+                    html += "<td width='100'>" + title + "</td>";
                 }
                 html += "</tr>";
             }
@@ -58,9 +63,12 @@
     </ul>
 </div>
 </div>
-<div id="recommend" width="100%" align="center">
-</div>
-<div id="content" width="100%" align="center">
+<div>
+    <div style="border-bottom: 1px solid gray" align="center"><h2>추천동영상</h2></div>
+    <div id="recommend" width="70%" align="center">
+    </div>
+    <div id="content" width="70%" align="center">
+    </div>
 </div>
 </body>
 </html>
