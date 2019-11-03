@@ -15,9 +15,24 @@ repositories {
 }
 
 dependencies {
+    // Spring boot web dependencies.
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // MySQL dependencies.
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.2.0.RELEASE'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.18'
+
+    // View dependencies.
+    compile group: 'javax.servlet', name: 'jstl', version: '1.2'
+    compile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: '9.0.27'
+    compile 'org.webjars:jquery-ui:1.11.4'
+
+    // Lenskit
     compile group: 'org.lenskit', name: 'lenskit-gradle', version: '3.0-M1'
     compile "org.lenskit:lenskit-all:$lenskitVersion"
     runtime "org.lenskit:lenskit-cli:$lenskitVersion"
+
+    // Lombok
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
 }
