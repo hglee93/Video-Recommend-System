@@ -22,9 +22,9 @@ public class VideoContentAnalyzer {
 
     private Map<Integer, String> itemTitleVectors;
 
-    private static final Double PARAM_K = 1.2;
+    private static final Double PARAM_K = 2.0;
 
-    private static final Double PARAM_B = 1.0;
+    private static final Double PARAM_B = 0.75;
 
     public void buildItemVectors() {
 
@@ -78,14 +78,14 @@ public class VideoContentAnalyzer {
             for(Map.Entry<String, Double> e : tv.entrySet()) {
                 e.setValue(e.getValue() * docFreq.get(e.getKey()));
             }
-            Double euclideanNorm = 0.0;
+            /*Double euclideanNorm = 0.0;
             for(Map.Entry<String, Double> e : tv.entrySet()) {
                 euclideanNorm += (e.getValue() * e.getValue());
             }
             euclideanNorm = Math.sqrt(euclideanNorm);
             for(Map.Entry<String, Double> e : tv.entrySet()) {
                 e.setValue(e.getValue() / euclideanNorm);
-            }
+            }*/
             modelData.put(entry.getKey(), tv);
         }
 
@@ -171,7 +171,7 @@ public class VideoContentAnalyzer {
             }
 
             // Normalization.
-            Double euclideanNorm = 0.0;
+            /*Double euclideanNorm = 0.0;
             for(Map.Entry<String, Double> e : tv.entrySet()) {
                 euclideanNorm += (e.getValue() * e.getValue());
             }
@@ -179,7 +179,7 @@ public class VideoContentAnalyzer {
 
             for(Map.Entry<String, Double> e : tv.entrySet()) {
                 e.setValue(e.getValue() / euclideanNorm);
-            }
+            }*/
             modelData.put(entry.getKey(), tv);
         }
 

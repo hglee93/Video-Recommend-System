@@ -40,8 +40,8 @@ public class ContentBasedFilter {
     }
 
     public List<VideoScoreDto> recommend(Integer userId) {
-        //videoContentAnalyzer.buildItemVectors();
-        videoContentAnalyzer.buildItemVectorsBM25();
+        videoContentAnalyzer.buildItemVectors();
+        //videoContentAnalyzer.buildItemVectorsBM25();
 
         Map<Integer, Map<String, Double>> itemVectors = videoContentAnalyzer.getItemVectors();
         Map<Integer, String> itemTitleVectors = videoContentAnalyzer.getItemTitleVectors();
