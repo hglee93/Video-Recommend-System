@@ -2,10 +2,13 @@ package com.skku.nutube.controller;
 
 import com.google.common.base.Throwables;
 import com.skku.nutube.dto.VideoDto;
+import com.skku.nutube.dto.VideoLikeDto;
 import com.skku.nutube.dto.VideoScoreDto;
 import com.skku.nutube.repository.VideoLikeRepository;
 import com.skku.nutube.repository.VideoListRepository;
 import com.skku.nutube.video.custom.cbf.ContentBasedFilter;
+import com.skku.nutube.video.custom.cf.CollaborativeFiltering;
+import com.skku.nutube.video.custom.hybrid.HybridFiltering;
 import org.lenskit.LenskitConfiguration;
 import org.lenskit.LenskitRecommender;
 import org.lenskit.LenskitRecommenderEngine;
@@ -47,10 +50,36 @@ public class VideoListController {
     @Autowired
     ContentBasedFilter contentBasedFilter;
 
+    @Autowired
+    CollaborativeFiltering collaborativeFiltering;
+
+    @Autowired
+    HybridFiltering hybridFiltering;
+
+    static final int THRESHOLD_CB = 10;
+
+    static final int THRESHOLD_CF = 20;
+
     @RequestMapping(value = "/video/list", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public List<VideoScoreDto> getVideoList(@RequestParam(value = "userId", defaultValue = "0")String userId) throws IOException {
-        List<VideoScoreDto> videoScoreDtoList = contentBasedFilter.recommend(Integer.valueOf(userId));
+
+        //List<VideoScoreDto> videoScoreDtoList = contentBasedFilter.recommend(Integer.valueOf(userId));
+        //List<VideoScoreDto> videoScoreDtoList = collaborativeFiltering.recommend(Integer.valueOf(userId));
+        //List<VideoScoreDto> videoScoreDtoList = hybridFiltering.recommend(Integer.valueOf(userId));
+
+        List<VideoLikeDto> videoLikeDtoList = videoLikeRepository.selectLikesByUserId(Integer.valueOf(userId));
+
+        List<VideoScoreDto> videoScoreDtoList = null;
+
+        if(videoLikeDtoList.size() < THRESHOLD_CB) {
+            videoScoreDtoList = contentBasedFilter.recommend(Integer.valueOf(userId));
+        } else if(videoLikeDtoList.size() < THRESHOLD_CF) {
+            videoScoreDtoList = collaborativeFiltering.recommend(Integer.valueOf(userId));
+        } else {
+            videoScoreDtoList = hybridFiltering.recommend(Integer.valueOf(userId));
+        }
+
         return videoScoreDtoList;
     }
 
