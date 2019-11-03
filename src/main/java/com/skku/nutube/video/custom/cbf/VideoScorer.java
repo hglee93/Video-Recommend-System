@@ -48,34 +48,6 @@ public class VideoScorer {
         return cs;
     }
 
-    public Double calJaccardSimilarity(Map<String, Double> userProfileA, Map<String, Double> userProfileB) {
-        Double intersection = 0.0;
-        Double union = 0.0;
-        Double js = 0.0;
-
-        Map<String, Double> outerMap;
-        Map<String, Double> innerMap;
-
-        if(userProfileA.size() < userProfileB.size()) {
-            outerMap = userProfileA;
-            innerMap = userProfileB;
-        } else {
-            outerMap = userProfileB;
-            innerMap = userProfileA;
-        }
-
-        for(Map.Entry<String, Double> entry : outerMap.entrySet()) {
-            if(innerMap.containsKey(entry.getKey()) == true) {
-                intersection += 1.0;
-            }
-        }
-
-        union = userProfileA.size() + userProfileB.size() - intersection;
-        js = intersection / union;
-
-        return js;
-    }
-
     public List<VideoScoreDto> scoreWithDetails(Map<String, Double> userProfile,
                                                 Map<Integer, Map<String, Double>> itemVectors,
                                                 Map<Integer, String> itemTitleVectors) {

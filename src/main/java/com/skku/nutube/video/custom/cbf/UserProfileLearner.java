@@ -19,7 +19,7 @@ public class UserProfileLearner {
 
         Map<String,Double> profile = new HashMap<>();
 
-        List<VideoLikeDto> videoLikeDtoList = videoLikeRepository.selectLikes(userId);
+        List<VideoLikeDto> videoLikeDtoList = videoLikeRepository.selectLikesByUserId(userId);
 
         // Iterate over the user's ratings to build their profile
         for (VideoLikeDto v: videoLikeDtoList) {
