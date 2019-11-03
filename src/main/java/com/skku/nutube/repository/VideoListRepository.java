@@ -30,17 +30,17 @@ public class VideoListRepository {
         jdbcTemplate.setDataSource(dataSource);
     }
 
-    public List<Long> selectItemId() {
+    public List<Integer> selectItemId() {
         if(jdbcTemplate == null) {
             System.out.println("jdbcTemplate is null");
         }
         return jdbcTemplate.query("select id from videos", (rs, rowNum) ->
-                new Long(
+                new Integer(
                         rs.getInt("id")
                 ));
     }
 
-    public List<String> selectTagListByItemId(Long videoId) {
+    public List<String> selectTagListByItemId(Integer videoId) {
 
         String SQL = "select tag from video_tag where videoId = " + videoId;
         List<String> result = jdbcTemplate.query(SQL
